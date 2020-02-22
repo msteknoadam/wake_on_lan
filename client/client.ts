@@ -27,8 +27,8 @@ const logger = createLogger({
 	],
 });
 
-const socket = io(`//${process.env.SERVER_HOSTNAME}`);
-socket.on("connected", () => {
+const socket = io(`${process.env.SERVER_ADDRESS}`, {reconnection: true});
+socket.on("connect", () => {
 	console.log("Connected to the server.");
 	logger.info("Connected to the server.");
 });

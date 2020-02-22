@@ -2,7 +2,6 @@ import * as express from "express";
 import * as socketio from "socket.io";
 import * as http from "http";
 import {createLogger, format, transports} from "winston";
-
 require("dotenv").config();
 const PORT = process.env.PORT || 3000;
 const logger = createLogger({
@@ -22,35 +21,45 @@ const logger = createLogger({
 		// - Write all logs error (and below) to `quick-start-error.log`.
 		//
 		new transports.File({
-			filename: "logs/wol-server.log",
+			filename: "logs/wol-server-error.log",
 			level: "error",
 		}),
 		new transports.File({filename: "logs/wol-server-combined.log"}),
 	],
 });
 
-const app = express();
-const server = http.createServer(app);
-const io = socketio(server);
+const initializeServer = async () => {
+	const app = express();
+	const server = http.createServer(app);
+	const io = socketio(server);
 
-io.on("connection", socket => {
-	socket.send("connected");
-});
+	app.get("/on", (req, res) => {
+		if (req.query.secret && req.query.secret === process.env.SERVER_SECRET) {
+			logger.info(`Got request to turn on the computer.`);
+			io.emit("on");
+			res.send(`Your request is now being processed.`);
+		} else {
+			res.sendStatus(403);
+		}
+	});
 
-app.get("/on", (req, res) => {
-	if (req.query.secret === process.env.SERVER_SECRET) {
-		logger.log("info", `Got turn on request with correct secret key.`);
-		res.send("Your request has been taken.");
-		io.send("on");
-	} else {
+	app.get("*", (req, res) => {
 		res.sendStatus(403);
-	}
-});
+	});
 
-app.get("*", (req, res) => {
-	res.sendStatus(403);
-});
+	server.listen(PORT, async () => {
+		console.log(`Started listening on *:${PORT}`);
+		logger.info(`Started listening on *:${PORT}`);
+	});
 
-app.listen(PORT, () => {
-	console.log(`Started listening on :${PORT}`);
-});
+	io.on("connection", socket => {
+		console.log("A user connected.");
+		socket.on("disconnect", () => {
+			console.log("A user disconnected.");
+		});
+	});
+};
+
+console.log("Starting to initialize server.");
+logger.info("Starting to initialize server.");
+initializeServer();
