@@ -33,6 +33,10 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
+io.on("connection", socket => {
+	socket.send("connected");
+});
+
 app.get("/on", (req, res) => {
 	if (req.query.secret === process.env.SERVER_SECRET) {
 		logger.log("info", `Got turn on request with correct secret key.`);

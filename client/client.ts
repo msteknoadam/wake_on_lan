@@ -28,6 +28,10 @@ const logger = createLogger({
 });
 
 const socket = io(`//${process.env.SERVER_HOSTNAME}`);
+socket.on("connected", () => {
+	console.log("Connected to the server.");
+	logger.info("Connected to the server.");
+});
 socket.on("on", () => {
 	logger.info("Got request from socket to turn on the computer.");
 	wol(process.env.MAC_ADDRESS);
