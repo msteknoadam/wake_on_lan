@@ -27,28 +27,32 @@ const logger = createLogger({
 	],
 });
 
+const logDebug = (message) => {
+	if (process.env.NODE_ENV == "development") console.log(message);
+	logger.info(message);
+};
+
 const debugMessages = {
 	connnected: "Connected to the server.",
 	disconnected: "Disconnected from the server, trying to reconnect. Reason for disconnect was:",
+	turnOn: "Got request from socket to turn on the computer.",
 };
 
 let upMessageSendInterval;
 
 const socket = io(`${process.env.SERVER_ADDRESS}`, { reconnection: true });
 socket.on("connect", () => {
-	console.log(debugMessages.connnected);
-	logger.info(debugMessages.connnected);
+	logDebug(debugMessages.connnected);
 	upMessageSendInterval = setInterval(() => {
 		socket.send(3);
 	}, 15e3);
 });
 socket.on("disconnect", (reason) => {
-	console.log(`${debugMessages.disconnected} ${reason}`);
-	logger.warn(`${debugMessages.disconnected} ${reason}`);
+	logDebug(`${debugMessages.disconnected} ${reason}`);
 	clearInterval(upMessageSendInterval);
 	socket.connect();
 });
 socket.on("on", () => {
-	logger.info("Got request from socket to turn on the computer.");
+	logDebug(debugMessages.turnOn);
 	wol(process.env.MAC_ADDRESS);
 });

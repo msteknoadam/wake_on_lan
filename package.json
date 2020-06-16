@@ -1,11 +1,12 @@
 {
 	"scripts": {
-		"dev:backend": "nodemon --ignore client/ --exec node_modules/.bin/ts-node -- ./backend/server.ts",
-		"dev:client": "nodemon --ignore backend/ --exec node_modules/.bin/ts-node -- ./client/client.ts",
+		"dev:backend": "cross-env NODE_ENV=development nodemon --ignore client/ --exec node_modules/.bin/ts-node -- ./backend/server.ts",
+		"dev:client": "cross-env NODE_ENV=development nodemon --ignore backend/ --exec node_modules/.bin/ts-node -- ./client/client.ts",
 		"start:backend": "node_modules/.bin/ts-node -- ./backend/server.ts",
 		"start:client": "node_modules/.bin/ts-node -- ./client/client.ts"
 	},
 	"devDependencies": {
+		"cross-env": "^7.0.2",
 		"nodemon": "^2.0.2",
 		"ts-loader": "^6.2.1",
 		"ts-node": "^8.6.2",
